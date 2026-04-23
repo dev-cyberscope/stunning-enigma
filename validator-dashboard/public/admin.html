@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuditChain Admin - Validator Management</title>
+  <style>
+    :root {
+      --primary: #ff69b4;
+      --primary-dark: #ff1493;
+      --bg-dark: #0f0f1a;
+      --bg-card: #1a1a2e;
+      --text: #ffffff;
+      --text-muted: #888;
+      --success: #00ff88;
+      --warning: #ffaa00;
+      --error: #ff4444;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Segoe UI", Tahoma, sans-serif; background: var(--bg-dark); color: var(--text); min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #1a1a2e, #2a2a4e); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); }
+    .header h1 { font-size: 1.5rem; color: var(--primary); }
+    .logout-btn { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .login-box { max-width: 400px; margin: 4rem auto; background: var(--bg-card); padding: 2rem; border-radius: 12px; border: 1px solid rgba(255,105,180,0.2); }
+    .login-box h2 { color: var(--primary); margin-bottom: 1.5rem; text-align: center; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); }
+    .form-group input { width: 100%; padding: 0.75rem 1rem; border: 1px solid rgba(255,105,180,0.3); border-radius: 8px; background: rgba(255,255,255,0.05); color: var(--text); font-size: 1rem; }
+    .btn { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; width: 100%; }
+    .btn-sm { padding: 0.5rem 1rem; font-size: 0.85rem; width: auto; }
+    .btn-success { background: var(--success); color: #000; }
+    .btn-danger { background: var(--error); }
+    .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+    .stats-row { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .stat-badge { background: var(--bg-card); padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid rgba(255,105,180,0.2); }
+    .stat-badge .num { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+    .stat-badge .label { font-size: 0.8rem; color: var(--text-muted); }
+    .section { background: var(--bg-card); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(255,105,180,0.2); }
+    .section h2 { color: var(--primary); margin-bottom: 1rem; font-size: 1.2rem; }
+    .app-card { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid var(--text-muted); }
+    .app-card.pending { border-left-color: var(--warning); }
+    .app-card.approved { border-left-color: var(--success); }
+    .app-card.active { border-left-color: var(--primary); }
+    .app-card.rejected { border-left-color: var(--error); }
+    .app-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+    .app-status { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; text-transform: uppercase; font-weight: bold; }
+    .status-pending { background: rgba(255,170,0,0.2); color: var(--warning); }
+    .status-approved { background: rgba(0,255,136,0.2); color: var(--success); }
+    .status-active { background: rgba(255,105,180,0.2); color: var(--primary); }
+    .status-rejected { background: rgba(255,68,68,0.2); color: var(--error); }
+    .app-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; font-size: 0.85rem; margin-bottom: 0.75rem; }
+    .app-details span { color: var(--text-muted); }
+    .app-details code { color: var(--text); background: rgba(255,255,255,0.1); padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.8rem; word-break: break-all; }
+    .app-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .hidden { display: none; }
+    .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    .alert-success { background: rgba(0,255,136,0.1); border: 1px solid var(--success); color: var(--success); }
+    .alert-error { background: rgba(255,68,68,0.1); border: 1px solid var(--error); color: var(--error); }
+    .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .setting-item input { width: 100%; padding: 0.5rem; border: 1px solid rgba(255,105,180,0.3); border-radius: 6px; background: rgba(255,255,255,0.05); color: var(--text); margin-top: 0.5rem; }
+    .no-apps { text-align: center; padding: 2rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div id="loginScreen">
+    <div class="login-box">
+      <h2>Admin Login</h2>
+      <div id="loginAlert" class="hidden"></div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Admin Password</label>
+          <input type="password" id="password" required placeholder="Enter admin password">
+        </div>
+        <button type="submit" class="btn">Login</button>
+      </form>
+      <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted); text-align: center;">First login sets the admin password</p>
+    </div>
+  </div>
+
+  <div id="adminPanel" class="hidden">
+    <div class="header">
+      <h1>AuditChain Validator Admin</h1>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    <div class="container">
+      <div id="alertBox" class="hidden"></div>
+      <div class="stats-row" id="statsRow">
+        <div class="stat-badge"><div class="num" id="totalApps">0</div><div class="label">Total Applications</div></div>
+        <div class="stat-badge"><div class="num" id="pendingApps">0</div><div class="label">Pending</div></div>
+        <div class="stat-badge"><div class="num" id="activeValidators">0</div><div class="label">Active Validators</div></div>
+        <div class="stat-badge"><div class="num" id="maxValidators">21</div><div class="label">Max Validators</div></div>
+      </div>
+      <div class="section"><h2>Pending Applications</h2><div id="pendingList"></div></div>
+      <div class="section"><h2>Approved / Active Validators</h2><div id="activeList"></div></div>
+      <div class="section"><h2>Rejected Applications</h2><div id="rejectedList"></div></div>
+      <div class="section">
+        <h2>Settings</h2>
+        <div class="settings-grid">
+          <div class="setting-item"><label>Minimum AUDT Holding</label><input type="number" id="minAuditSetting" value="1000000"></div>
+          <div class="setting-item"><label>Maximum Validators</label><input type="number" id="maxValidatorsSetting" value="21"></div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top: 1rem;" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let adminPassword = "";
+    function getAuthHeader() { return { "Authorization": "Bearer " + adminPassword }; }
+    
+    async function login(e) {
+      e.preventDefault();
+      adminPassword = document.getElementById("password").value;
+      try {
+        const res = await fetch("/api/admin/applications", { headers: getAuthHeader() });
+        if (res.ok) {
+          localStorage.setItem("auditchain_admin", adminPassword);
+          document.getElementById("loginScreen").classList.add("hidden");
+          document.getElementById("adminPanel").classList.remove("hidden");
+          loadData();
+        } else { showLoginAlert("Invalid password", "error"); }
+      } catch (err) { showLoginAlert("Connection error", "error"); }
+    }
+
+    function logout() {
+      localStorage.removeItem("auditchain_admin");
+      adminPassword = "";
+      document.getElementById("loginScreen").classList.remove("hidden");
+      document.getElementById("adminPanel").classList.add("hidden");
+      document.getElementById("password").value = "";
+    }
+
+    function showLoginAlert(msg, type) {
+      const box = document.getElementById("loginAlert");
+      box.className = "alert alert-" + type;
+      box.textContent = msg;
+      box.classList.remove("hidden");
+    }
+
+    function showAlert(msg, type) {
+      const box = document.getElementById("alertBox");
+      box.className = "alert alert-" + type;
+      box.textContent = msg;
+      box.classList.remove("hidden");
+      setTimeout(function() { box.classList.add("hidden"); }, 5000);
+    }
+
+    async function loadData() {
+      try {
+        const [appsRes, statsRes, settingsRes] = await Promise.all([
+          fetch("/api/admin/applications", { headers: getAuthHeader() }),
+          fetch("/api/stats"),
+          fetch("/api/admin/settings", { headers: getAuthHeader() })
+        ]);
+        const appsData = await appsRes.json();
+        const statsData = await statsRes.json();
+        const settingsData = await settingsRes.json();
+
+        document.getElementById("totalApps").textContent = appsData.stats?.total || 0;
+        document.getElementById("pendingApps").textContent = appsData.stats?.pending || 0;
+        document.getElementById("activeValidators").textContent = statsData.validatorCount || 0;
+        document.getElementById("maxValidators").textContent = statsData.maxValidators || 21;
+        document.getElementById("minAuditSetting").value = settingsData.minAuditHolding || 1000000;
+        document.getElementById("maxValidatorsSetting").value = settingsData.maxValidators || 21;
+        renderApplications(appsData.applications || []);
+      } catch (err) { console.error("Failed to load data:", err); }
+    }
+
+    function renderApplications(apps) {
+      const pending = apps.filter(function(a) { return a.status === "pending"; });
+      const active = apps.filter(function(a) { return a.status === "approved" || a.status === "active"; });
+      const rejected = apps.filter(function(a) { return a.status === "rejected"; });
+      document.getElementById("pendingList").innerHTML = pending.length ? pending.map(renderAppCard).join("") : '<div class="no-apps">No pending applications</div>';
+      document.getElementById("activeList").innerHTML = active.length ? active.map(renderAppCard).join("") : '<div class="no-apps">No active validators</div>';
+      document.getElementById("rejectedList").innerHTML = rejected.length ? rejected.map(renderAppCard).join("") : '<div class="no-apps">No rejected applications</div>';
+    }
+
+    function renderAppCard(app) {
+      var date = new Date(app.appliedAt).toLocaleString();
+      var actions = getActions(app);
+      return '<div class="app-card ' + app.status + '">' +
+        '<div class="app-header"><div><strong>Application ' + app.id.slice(0,8) + '...</strong>' +
+        '<div style="font-size: 0.75rem; color: var(--text-muted);">Applied: ' + date + '</div></div>' +
+        '<span class="app-status status-' + app.status + '">' + app.status + '</span></div>' +
+        '<div class="app-details">' +
+        '<div><span>AUDT Balance:</span> <strong>' + (app.auditBalance?.toLocaleString() || 0) + '</strong></div>' +
+        '<div><span>Contact:</span> ' + (app.contactInfo || "N/A") + '</div>' +
+        '<div><span>XRPL:</span> <code>' + app.xrplAddress + '</code></div>' +
+        '<div><span>EVM:</span> <code>' + app.evmAddress + '</code></div></div>' +
+        (app.nodeEndpoint ? '<div style="font-size: 0.8rem; color: var(--text-muted);">Node: ' + app.nodeEndpoint + '</div>' : "") +
+        '<div class="app-actions">' + actions + '</div></div>';
+    }
+
+    function getActions(app) {
+      if (app.status === "pending") {
+        return '<button class="btn btn-success btn-sm" onclick="approveApp(\'' + app.id + '\')">Approve & Add Validator</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="rejectApp(\'' + app.id + '\')">Reject</button>';
+      }
+      if (app.status === "active") {
+        return '<button class="btn btn-danger btn-sm" onclick="removeValidator(\'' + app.id + '\')">Remove Validator</button>';
+      }
+      if (app.status === "approved") {
+        return '<span style="color: var(--success); font-size: 0.85rem;">Vote proposed - waiting for activation</span>';
+      }
+      return "";
+    }
+
+    async function approveApp(id) {
+      if (!confirm("Approve this application and add as validator?")) return;
+      try {
+        const res = await fetch("/api/admin/approve/" + id, {
+          method: "POST",
+          headers: Object.assign({}, getAuthHeader(), { "Content-Type": "application/json" })
+        });
+        const data = await res.json();
+        if (res.ok) { showAlert("Validator approved and vote proposed!", "success"); loadData(); }
+        else { showAlert(data.error || "Approval failed", "error"); }
+      } catch (err) { showAlert("Network error", "error"); }
+    }
+
+    async function rejectApp(id) {
+      var reason = prompt("Rejection reason (optional):");
+      try {
+        const res = await fetch("/api/admin/reject/" + id, {
+          method: "POST",
+          headers: Object.assign({}, getAuthHeader(), { "Content-Type": "application/json" }),
+          body: JSON.stringify({ reason: reason })
+        });
+        const data = await res.json();
+        if (res.ok) { showAlert("Application rejected", "success"); loadData(); }
+        else { showAlert(data.error || "Rejection failed", "error"); }
+      } catch (err) { showAlert("Network error", "error"); }
+    }
+
+    async function removeValidator(id) {
+      if (!confirm("Remove this validator from the network?")) return;
+      try {
+        const res = await fetch("/api/admin/remove/" + id, { method: "POST", headers: getAuthHeader() });
+        const data = await res.json();
+        if (res.ok) { showAlert("Validator removal proposed", "success"); loadData(); }
+        else { showAlert(data.error || "Removal failed", "error"); }
+      } catch (err) { showAlert("Network error", "error"); }
+    }
+
+    async function saveSettings() {
+      try {
+        const res = await fetch("/api/admin/settings", {
+          method: "POST",
+          headers: Object.assign({}, getAuthHeader(), { "Content-Type": "application/json" }),
+          body: JSON.stringify({
+            minAuditHolding: parseInt(document.getElementById("minAuditSetting").value),
+            maxValidators: parseInt(document.getElementById("maxValidatorsSetting").value)
+          })
+        });
+        if (res.ok) { showAlert("Settings saved!", "success"); loadData(); }
+        else { showAlert("Failed to save settings", "error"); }
+      } catch (err) { showAlert("Network error", "error"); }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      var saved = localStorage.getItem("auditchain_admin");
+      if (saved) {
+        adminPassword = saved;
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("adminPanel").classList.remove("hidden");
+        loadData();
+      }
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", login);
+    setInterval(function() {
+      if (!document.getElementById("adminPanel").classList.contains("hidden")) { loadData(); }
+    }, 10000);
+  </script>
+</body>
+</html>

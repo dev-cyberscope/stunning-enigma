@@ -1,0 +1,46 @@
+{
+  "config": {
+    "chainId": 1337,
+    "homesteadBlock": 0,
+    "eip150Block": 0,
+    "eip155Block": 0,
+    "eip158Block": 0,
+    "byzantiumBlock": 0,
+    "constantinopleBlock": 0,
+    "petersburgBlock": 0,
+    "istanbulBlock": 0,
+    "berlinBlock": 0,
+    "londonBlock": 0,
+    "arrowGlacierBlock": 0,
+    "grayGlacierBlock": 0,
+    "mergeNetsplitBlock": 0,
+    "terminalTotalDifficulty": 0,
+    "terminalTotalDifficultyPassed": true,
+    "shanghaiBlock": 0,
+    "cancunBlock": 0,
+    "pragueBlock": 0
+  },
+  "nonce": "0x0",
+  "timestamp": "0x0",
+  "extraData": "0x",
+  "gasLimit": "0x2FAF080",
+  "difficulty": "0x0",
+  "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "coinbase": "0x0000000000000000000000000000000000000000",
+  "alloc": {
+    "0000000000000000000000000000000000000001": {
+      "balance": "0x200000000000000000000000000000000000000000000000000000000000000"
+    },
+    "000000000000000000000000000000000000000f": {
+      "balance": "0x588000000000000000000000000"   # your full 588 million AUDT still here
+    },
+    "00000000219ab540356cbb839cbe05303d7705fa": {
+      "balance": "0x0",
+      "code": "0x608060405234801561001057600080fd5b5060..."   # deposit contract bytecode (I can give full if needed)
+    }
+  },
+  "number": "0x0",
+  "gasUsed": "0x0",
+  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "baseFeePerGas": "0x3b9aca00"
+}

@@ -1,0 +1,6 @@
+/etc/letsencrypt/archive/rpc.example.com
+/etc/letsencrypt/live/rpc.example.com
+/root/auditchain-core
+/root/auditchain
+/root/auditchain-src
+/tmp/audit-test

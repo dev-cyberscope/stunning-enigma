@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuditChain Validator Dashboard</title>
+  <style>
+    :root {
+      --primary: #ff69b4;
+      --primary-dark: #ff1493;
+      --bg-dark: #0f0f1a;
+      --bg-card: #1a1a2e;
+      --text: #ffffff;
+      --text-muted: #888;
+      --success: #00ff88;
+      --error: #ff4444;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .header p {
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px solid rgba(255,105,180,0.2);
+    }
+    
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    
+    .stat-card .label {
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+    
+    .section {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(255,105,180,0.2);
+    }
+    
+    .section h2 {
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .validator-list {
+      list-style: none;
+    }
+    
+    .validator-list li {
+      background: rgba(255,255,255,0.05);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .validator-list li::before {
+      content: "✓";
+      color: var(--success);
+      font-weight: bold;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-muted);
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(255,105,180,0.3);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-size: 1rem;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    .btn {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(255,105,180,0.4);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    
+    .alert-success {
+      background: rgba(0,255,136,0.1);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+    
+    .alert-error {
+      background: rgba(255,68,68,0.1);
+      border: 1px solid var(--error);
+      color: var(--error);
+    }
+    
+    .requirement-box {
+      background: rgba(255,105,180,0.1);
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .requirement-box h3 {
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .hidden { display: none; }
+    
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+    }
+    
+    .loading::after {
+      content: "...";
+      animation: dots 1.5s infinite;
+    }
+    
+    @keyframes dots {
+      0%, 20% { content: "."; }
+      40% { content: ".."; }
+      60%, 100% { content: "..."; }
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .chain-info {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    
+    .chain-info span {
+      background: rgba(255,255,255,0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .info-note {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>AuditChain Validator Dashboard</h1>
+    <p>Join the AuditChain network as a validator</p>
+    <div class="chain-info">
+      <span>Chain ID: 589</span>
+      <span>Consensus: QBFT</span>
+      <span>Block Time: ~2s</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-grid" id="stats">
+      <div class="stat-card">
+        <div class="value" id="blockNumber">-</div>
+        <div class="label">Current Block</div>
+      </div>
+      <div class="stat-card">
+        <div class="value" id="validatorCount">-</div>
+        <div class="label">Active Validators</div>
+      </div>
+      <div class="stat-card">
+        <div class="value" id="maxValidators">-</div>
+        <div class="label">Max Validators</div>
+      </div>
+      <div class="stat-card">
+        <div class="value" id="syncStatus">-</div>
+        <div class="label">Sync Status</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Active Validators</h2>
+      <ul class="validator-list" id="validatorList">
+        <li class="loading">Loading validators</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Become a Validator</h2>
+      
+      <div class="requirement-box">
+        <h3>Requirements</h3>
+        <p>To become a AuditChain validator, you must hold a minimum of <strong id="minAudit">1,000,000</strong> AUDT tokens.</p>
+        <p class="info-note">AUDT token holdings are verified on XRPL (where the token was created). Your AuditChain validator node will use an EVM-compatible address.</p>
+      </div>
+
+      <div id="alertBox" class="hidden"></div>
+
+      <form id="applyForm">
+        <div class="form-group">
+          <label>XRPL Address (where you hold AUDT tokens)</label>
+          <input type="text" id="xrplAddress" placeholder="rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" required>
+        </div>
+        
+        <div class="form-group">
+          <label>AuditChain Validator Address (EVM)</label>
+          <input type="text" id="evmAddress" placeholder="0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Node Endpoint (optional)</label>
+          <input type="text" id="nodeEndpoint" placeholder="enode://...@your-ip:30303">
+        </div>
+        
+        <div class="form-group">
+          <label>Contact Info (optional - Telegram/Email)</label>
+          <input type="text" id="contactInfo" placeholder="@your_telegram or email">
+        </div>
+        
+        <button type="submit" class="btn" id="submitBtn">Submit Application</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>AuditChain - Powered by the AUDT Community</p>
+    <p>
+      <a href="https://www.auditbot.me" target="_blank">AuditBot</a> | 
+      <a href="https://rpc.rpc.example.com" target="_blank">AuditChain RPC</a>
+    </p>
+  </div>
+
+  <script>
+    async function loadStats() {
+      try {
+        const res = await fetch("/api/stats");
+        const data = await res.json();
+        
+        document.getElementById("blockNumber").textContent = data.blockNumber?.toLocaleString() || "-";
+        document.getElementById("validatorCount").textContent = data.validatorCount || "0";
+        document.getElementById("maxValidators").textContent = data.maxValidators || "21";
+        document.getElementById("syncStatus").textContent = data.syncing ? "Syncing" : "Synced";
+      } catch (err) {
+        console.error("Failed to load stats:", err);
+      }
+    }
+
+    async function loadValidators() {
+      try {
+        const res = await fetch("/api/validators");
+        const data = await res.json();
+        const list = document.getElementById("validatorList");
+        
+        if (data.validators?.length > 0) {
+          list.innerHTML = data.validators.map(v => `<li>${v}</li>`).join("");
+        } else {
+          list.innerHTML = "<li>No validators found</li>";
+        }
+      } catch (err) {
+        console.error("Failed to load validators:", err);
+      }
+    }
+
+    async function loadRequirements() {
+      try {
+        const res = await fetch("/api/requirements");
+        const data = await res.json();
+        document.getElementById("minAudit").textContent = data.minAuditHolding?.toLocaleString() || "1,000,000";
+      } catch (err) {
+        console.error("Failed to load requirements:", err);
+      }
+    }
+
+    function showAlert(message, type) {
+      const box = document.getElementById("alertBox");
+      box.className = `alert alert-${type}`;
+      box.textContent = message;
+      box.classList.remove("hidden");
+      
+      if (type === "success") {
+        setTimeout(() => box.classList.add("hidden"), 8000);
+      }
+    }
+
+    document.getElementById("applyForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      btn.textContent = "Verifying AUDT Holdings...";
+
+      try {
+        const res = await fetch("/api/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            xrplAddress: document.getElementById("xrplAddress").value.trim(),
+            evmAddress: document.getElementById("evmAddress").value.trim(),
+            nodeEndpoint: document.getElementById("nodeEndpoint").value.trim(),
+            contactInfo: document.getElementById("contactInfo").value.trim()
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showAlert(`Application submitted! AUDT balance verified: ${data.auditBalance?.toLocaleString()} AUDT. Awaiting admin approval.`, "success");
+          document.getElementById("applyForm").reset();
+        } else {
+          showAlert(data.error || "Application failed", "error");
+        }
+      } catch (err) {
+        showAlert("Network error. Please try again.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Submit Application";
+      }
+    });
+
+    // Initial load
+    loadStats();
+    loadValidators();
+    loadRequirements();
+
+    // Auto-refresh stats every 5 seconds
+    setInterval(loadStats, 5000);
+  </script>
+</body>
+</html>

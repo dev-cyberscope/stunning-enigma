@@ -1,0 +1,47 @@
+export const AUDITCHAIN_CONFIG = {
+  chainId: '0x539', // 1337 in hex - AuditChain Chain ID
+  chainName: 'AuditChain',
+  nativeCurrency: {
+    name: 'AUDT',
+    symbol: 'AUDT',
+    decimals: 18,
+  },
+  rpcUrls: ['https://swap.example.com/rpc'],
+  blockExplorerUrls: ['https://scan.example.com'],
+}
+
+export const CONTRACT_ADDRESSES = {
+  // V2 Verified Contracts
+  WAUDT: import.meta.env.VITE_WAUDT_ADDRESS ?? '0x0000000000000000000000000000000000000003',
+  FACTORY: import.meta.env.VITE_FACTORY_ADDRESS ?? '0x0000000000000000000000000000000000000004',
+  ROUTER: import.meta.env.VITE_ROUTER_ADDRESS ?? '0x0000000000000000000000000000000000000005',
+  TOKEN_A: import.meta.env.VITE_TOKEN_A_ADDRESS ?? '0x0000000000000000000000000000000000000006',
+  TOKEN_B: import.meta.env.VITE_TOKEN_B_ADDRESS ?? '0x0000000000000000000000000000000000000007',
+  FARM: import.meta.env.VITE_FARM_ADDRESS ?? '0x0000000000000000000000000000000000000008',
+  DAO: import.meta.env.VITE_DAO_ADDRESS ?? '',
+  TOKEN_LOCKER: import.meta.env.VITE_TOKEN_LOCKER_ADDRESS ?? '0x0000000000000000000000000000000000000009',
+  LP_LOCKER: import.meta.env.VITE_LP_LOCKER_ADDRESS ?? '0x000000000000000000000000000000000000000a',
+  // V3 Verified Contracts
+  V3_FACTORY: import.meta.env.VITE_V3_FACTORY_ADDRESS ?? '0x000000000000000000000000000000000000000b',
+  V3_POSITION_MANAGER: import.meta.env.VITE_V3_POSITION_MANAGER_ADDRESS ?? '0x000000000000000000000000000000000000000c',
+  V3_SWAP_ROUTER: import.meta.env.VITE_V3_SWAP_ROUTER_ADDRESS ?? '0x000000000000000000000000000000000000000d',
+  V3_QUOTER: import.meta.env.VITE_V3_QUOTER_ADDRESS ?? '0x000000000000000000000000000000000000000e',
+  V3_NFT_POSITION_LOCKER: import.meta.env.VITE_V3_NFT_POSITION_LOCKER_ADDRESS ?? '',
+}
+
+export const COMMON_TOKENS = [
+  {
+    symbol: 'AUDT',
+    name: 'AuditChain Token',
+    address: 'native',
+    decimals: 18,
+    logo: '💃'
+  },
+  {
+    symbol: 'TOKEN_A',
+    name: 'AuditSwap Token',
+    address: CONTRACT_ADDRESSES.TOKEN_A,
+    decimals: 18,
+    logo: '🎂'
+  },
+]

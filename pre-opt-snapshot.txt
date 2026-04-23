@@ -1,0 +1,40 @@
+Pre-Optimization Snapshot - auditchain
+Date: Sun Mar 15 07:19:55 AM UTC 2026
+┌────┬─────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name                │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 5  │ audit-sequencer      │ default     │ 2.0.0   │ fork    │ 858884   │ 3M     │ 6    │ online    │ 0%       │ 75.3mb   │ root     │ disabled │
+│ 7  │ auditswap            │ default     │ N/A     │ fork    │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b       │ root     │ disabled │
+│ 6  │ auditswap-backend    │ default     │ 1.0.0   │ fork    │ 2336260  │ 2M     │ 37   │ online    │ 0%       │ 97.5mb   │ root     │ disabled │
+└────┴─────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Filesystem      Size  Used Avail Use% Mounted on
+tmpfs           3.1G  2.8M  3.1G   1% /run
+/dev/sda1        38G   21G   16G  57% /
+tmpfs            16G   48K   16G   1% /dev/shm
+tmpfs           5.0M     0  5.0M   0% /run/lock
+/dev/sda15      253M  142K  252M   1% /boot/efi
+tmpfs           3.1G  4.0K  3.1G   1% /run/user/0
+/dev/sdc        305G   20G  269G   7% /mnt/HC_Volume_104149219
+/dev/sdb        295G   11G  269G   4% /mnt/HC_Volume_102971162
+overlay         295G   11G  269G   4% /mnt/HC_Volume_102971162/docker/overlay2/cc7a151711bb2e36f76cd57e42ec2fe148737e41aad7276df7de01ec714b4a96/merged
+overlay         295G   11G  269G   4% /mnt/HC_Volume_102971162/docker/overlay2/bb373eff0f9de69399d21d7887e9a535ba3303e82462c62ee5d0c45506733b03/merged
+overlay         295G   11G  269G   4% /mnt/HC_Volume_102971162/docker/overlay2/b051d435427cf72c7b88ad90fbffe44a0b2c30d1e71b18ead9366a496e75c94b/merged
+overlay         295G   11G  269G   4% /mnt/HC_Volume_102971162/docker/overlay2/8adc4129ffcdd357753349290564df6e727786caf71b9683f744b8f78601de33/merged
+overlay         295G   11G  269G   4% /mnt/HC_Volume_102971162/docker/overlay2/87aedeebd259a07b8268415ee9431c1e6c17427b13f573704fdabbce6ca4b2a9/merged
+overlay         295G   11G  269G   4% /mnt/HC_Volume_102971162/docker/overlay2/e055019ffa3250db4c4d13cea03745330f2fd604b1b88c8147f6b0401f9750da/merged
+overlay         295G   11G  269G   4% /mnt/HC_Volume_102971162/docker/overlay2/0dd80058369a2467dd64294403ee26060b6a057043ed0cd4f9d0bf7e6ca80e17/merged
+overlay         295G   11G  269G   4% /mnt/HC_Volume_102971162/docker/overlay2/f2d7db5ae2aed3ea951d3925948d73f272e48099f5fe63842820b3324cff1c77/merged
+overlay         295G   11G  269G   4% /mnt/HC_Volume_102971162/docker/overlay2/e166efa5de116a509d9b367a66c136ef40102b551bf1be6b776436a77d4e6167/merged
+               total        used        free      shared  buff/cache   available
+Mem:            30Gi        10Gi       448Mi       8.4Gi        19Gi        11Gi
+Swap:             0B          0B          0B
+CONTAINER ID   IMAGE                                        COMMAND                  CREATED        STATUS                  PORTS                                         NAMES
+5258d7f3d7aa   ghcr.io/blockscout/user-ops-indexer:latest   "./user-ops-indexer-…"   4 hours ago    Up 4 hours                                                            user-ops-indexer
+7a621d3df634   ghcr.io/blockscout/blockscout:latest         "sh -c 'bin/blocksco…"   4 hours ago    Up 4 hours                                                            backend
+9c0517a6ce9e   ghcr.io/blockscout/frontend:latest           "./entrypoint.sh nod…"   2 months ago   Up 2 months             3000/tcp                                      frontend
+c521f1a99fbd   ghcr.io/blockscout/stats:latest              "./stats-server"         2 months ago   Up 9 seconds                                                          stats
+35964c74ef6b   postgres:17                                  "docker-entrypoint.s…"   2 months ago   Up 2 months (healthy)   0.0.0.0:7432->5432/tcp, [::]:7432->5432/tcp   db
+2a522bc6b348   postgres:17                                  "docker-entrypoint.s…"   2 months ago   Up 2 months (healthy)   0.0.0.0:7433->5432/tcp, [::]:7433->5432/tcp   stats-db
+afd5fa0b46b1   ghcr.io/blockscout/visualizer:latest         "./visualizer-server"    2 months ago   Up 2 months                                                           visualizer
+92a387e51c0d   redis:alpine                                 "docker-entrypoint.s…"   2 months ago   Up 2 months             6379/tcp                                      redis-db
+166659b6c83e   ghcr.io/blockscout/sig-provider:latest       "./sig-provider-serv…"   2 months ago   Up 2 months                                                           sig-provider

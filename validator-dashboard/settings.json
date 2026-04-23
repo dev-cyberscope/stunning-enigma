@@ -1,0 +1,5 @@
+{
+  "minAuditHolding": 1000000,
+  "maxValidators": 21,
+  "adminPasswordHash": "c630706972c0dd38d0a50f2cc7f41a19aa2ae3e49e0744fab3b7cccf279bd004"
+}
